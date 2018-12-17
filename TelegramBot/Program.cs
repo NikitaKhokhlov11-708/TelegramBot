@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -56,12 +57,53 @@ namespace TelegramBot
                     {
                         lastMessageId = last.Id;
                         Console.WriteLine(last.Message.Text);
-                        
-                        if (last.Message.Text == "/hello")
+                        string message = "";
+
+                        switch (last.Message.Text)
                         {
-                            Bot.SendTextMessageAsync(last.Message.From.Id, "Здравствуйте! Я — кухонный бот-помощник. На этом пока всё.");
-                        } else
-                            Bot.SendTextMessageAsync(last.Message.From.Id, "Неизвестная команда.");
+                            case "/start":
+                                message = "Здравствуйте! Я — кухонный бот-помощник.";
+                                break;
+
+                            case "/hello":
+                                message = "Привет!";
+                                break;
+
+                            case "/fridge":
+                                SqlConnection conn = new SqlConnection("server=localhost;" +
+                                       "Trusted_Connection=yes;" +
+                                       "database=TelegramBot;");
+                                conn.Open();
+
+                                try
+                                {
+                                    SqlDataReader myReader = null;
+                                    SqlCommand myCommand = new SqlCommand("select * from Users where id = " + last.Message.From.Id,
+                                                                             conn);
+                                    myReader = myCommand.ExecuteReader();
+                                    if (!myReader.HasRows)
+                                    {
+                                        myReader.Close();
+                                        myCommand = new SqlCommand("insert into Users values (" + last.Message.From.Id + ")", conn);
+                                        myCommand.ExecuteNonQuery();
+                                        message = "Вы успешно зарегистрировались.";
+                                    }
+                                    else
+                                        message = "Ваш холодильник:";
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine(e.ToString());
+                                }
+                                conn.Close();
+                                break;
+
+                            default:
+                                message = "Неизвестная команда.";
+                                break;
+                        }
+
+                        await Bot.SendTextMessageAsync(last.Message.From.Id, message);
                     }
                 }
                 Thread.Sleep(100);
