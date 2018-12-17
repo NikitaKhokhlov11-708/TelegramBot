@@ -56,12 +56,12 @@ namespace TelegramBot
                     {
                         lastMessageId = last.Id;
                         Console.WriteLine(last.Message.Text);
-
-                        if (last.Message.Text.Contains("Привет") || last.Message.Text.Contains("привет"))
+                        
+                        if (last.Message.Text == "/hello")
                         {
                             Bot.SendTextMessageAsync(last.Message.From.Id, "Здравствуйте! Я — кухонный бот-помощник. На этом пока всё.");
                         } else
-                            Bot.SendTextMessageAsync(last.Message.From.Id, "Напишите мне \"Привет\"!");
+                            Bot.SendTextMessageAsync(last.Message.From.Id, "Неизвестная команда.");
                     }
                 }
                 Thread.Sleep(100);
