@@ -10,3 +10,15 @@ C:\Users\Nikita\source\repos\TelegramBot\TelegramBot\obj\Debug\TelegramBot.cspro
 C:\Users\Nikita\source\repos\TelegramBot\TelegramBot\obj\Debug\TelegramBot.csproj.CopyComplete
 C:\Users\Nikita\source\repos\TelegramBot\TelegramBot\obj\Debug\TelegramBot.exe
 C:\Users\Nikita\source\repos\TelegramBot\TelegramBot\obj\Debug\TelegramBot.pdb
+D:\Библиотеки\Учёба\TelegramBot\TelegramBot\TelegramBot\bin\Debug\TelegramBot.exe.config
+D:\Библиотеки\Учёба\TelegramBot\TelegramBot\TelegramBot\bin\Debug\TelegramBot.exe
+D:\Библиотеки\Учёба\TelegramBot\TelegramBot\TelegramBot\bin\Debug\TelegramBot.pdb
+D:\Библиотеки\Учёба\TelegramBot\TelegramBot\TelegramBot\bin\Debug\Newtonsoft.Json.dll
+D:\Библиотеки\Учёба\TelegramBot\TelegramBot\TelegramBot\bin\Debug\Telegram.Bot.dll
+D:\Библиотеки\Учёба\TelegramBot\TelegramBot\TelegramBot\bin\Debug\Newtonsoft.Json.xml
+D:\Библиотеки\Учёба\TelegramBot\TelegramBot\TelegramBot\bin\Debug\Telegram.Bot.xml
+D:\Библиотеки\Учёба\TelegramBot\TelegramBot\TelegramBot\obj\Debug\TelegramBot.csproj.CoreCompileInputs.cache
+D:\Библиотеки\Учёба\TelegramBot\TelegramBot\TelegramBot\obj\Debug\TelegramBot.csproj.CopyComplete
+D:\Библиотеки\Учёба\TelegramBot\TelegramBot\TelegramBot\obj\Debug\TelegramBot.exe
+D:\Библиотеки\Учёба\TelegramBot\TelegramBot\TelegramBot\obj\Debug\TelegramBot.pdb
+D:\Библиотеки\Учёба\TelegramBot\TelegramBot\TelegramBot\obj\Debug\TelegramBot.csprojAssemblyReference.cache

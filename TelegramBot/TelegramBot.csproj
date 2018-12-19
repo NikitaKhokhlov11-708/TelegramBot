@@ -49,6 +49,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Fridge.cs" />
+    <Compile Include="KitchenHelper.cs" />
+    <Compile Include="Meal.cs" />
+    <Compile Include="MyUser.cs" />
+    <Compile Include="Product.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
