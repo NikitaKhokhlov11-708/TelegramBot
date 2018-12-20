@@ -22,3 +22,15 @@ D:\Библиотеки\Учёба\TelegramBot\TelegramBot\TelegramBot\obj\Debug
 D:\Библиотеки\Учёба\TelegramBot\TelegramBot\TelegramBot\obj\Debug\TelegramBot.exe
 D:\Библиотеки\Учёба\TelegramBot\TelegramBot\TelegramBot\obj\Debug\TelegramBot.pdb
 D:\Библиотеки\Учёба\TelegramBot\TelegramBot\TelegramBot\obj\Debug\TelegramBot.csprojAssemblyReference.cache
+C:\Users\Nikita\Documents\GitHub\TelegramBot\TelegramBot\bin\Debug\TelegramBot.exe.config
+C:\Users\Nikita\Documents\GitHub\TelegramBot\TelegramBot\bin\Debug\TelegramBot.exe
+C:\Users\Nikita\Documents\GitHub\TelegramBot\TelegramBot\bin\Debug\TelegramBot.pdb
+C:\Users\Nikita\Documents\GitHub\TelegramBot\TelegramBot\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Nikita\Documents\GitHub\TelegramBot\TelegramBot\bin\Debug\Telegram.Bot.dll
+C:\Users\Nikita\Documents\GitHub\TelegramBot\TelegramBot\bin\Debug\Newtonsoft.Json.xml
+C:\Users\Nikita\Documents\GitHub\TelegramBot\TelegramBot\bin\Debug\Telegram.Bot.xml
+C:\Users\Nikita\Documents\GitHub\TelegramBot\TelegramBot\obj\Debug\TelegramBot.csprojAssemblyReference.cache
+C:\Users\Nikita\Documents\GitHub\TelegramBot\TelegramBot\obj\Debug\TelegramBot.csproj.CoreCompileInputs.cache
+C:\Users\Nikita\Documents\GitHub\TelegramBot\TelegramBot\obj\Debug\TelegramBot.csproj.CopyComplete
+C:\Users\Nikita\Documents\GitHub\TelegramBot\TelegramBot\obj\Debug\TelegramBot.exe
+C:\Users\Nikita\Documents\GitHub\TelegramBot\TelegramBot\obj\Debug\TelegramBot.pdb
