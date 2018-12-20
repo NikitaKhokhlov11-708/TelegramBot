@@ -13,7 +13,7 @@ namespace TelegramBot
 {
     public class KitchenHelper
     {
-        private const string token = "647547033:AAHy8ZNwQRDBq7B1VocSbWjFHo_jCeB9Bqs";
+        private const string token = "714123426:AAGHsuJ7hA59HXhZhSiHRiaSSY2p1W8UQKI";
         public TelegramBotClient Bot;
 
         public KitchenHelper()
@@ -103,6 +103,14 @@ namespace TelegramBot
                         message = CommandRemoveProduct(update);
                     else if (query.Contains("/recipe_add "))
                         message = CommandAddRecipe(update);
+                    else if (query.Contains("/recipe_remove "))
+                        message = CommandRemoveRecipe(update);
+                    else if (query.Contains("/recipe_ingr_"))
+                        message = CommandAddRecipeIngr(update);
+                    else if (query.Contains("/recipe_text_"))
+                        message = CommandAddRecipeText(update);
+                    else if (query.Contains("/recipe_show_"))
+                        message = CommandShowRecipe(update);
                     else
                         message = "Неизвестная команда";
                     break;
@@ -291,7 +299,7 @@ namespace TelegramBot
                     {
                         foreach (var m in meals)
                         {
-                            message += (meals.IndexOf(m) + 1).ToString() + ". " + m.Name + "\n";
+                            message += (meals.IndexOf(m) + 1).ToString() + ". " + m.Name + "\n Показать рецепт: /recipe_show_" + (meals.IndexOf(m) + 1).ToString() + "\n";
                         }
                     }
                     else
@@ -340,7 +348,7 @@ namespace TelegramBot
                     meals.Add(add);
                     var insCommand = new SqlCommand("insert into Recipe values ( '" + name + "'," + update.Message.From.Id + ",'','')", conn);
                     insCommand.ExecuteNonQuery();
-                    message = "Рецепт \"" + name + "\" успешно добавлен!\nДля добавления ингредиентов, необходимых для приготовления этого блюда, используйте команду\n/recipe_ingr_" + (meals.IndexOf(add) + 1).ToString() + " Название, кол-во, ед. измерения; Название, кол-во, ед. измерения;\nПример: \n/recipe_ingr_1 Томаты, 9, шт; Молоко, 5, л\n";
+                    message = "Рецепт \"" + name + "\" успешно добавлен!\nДля добавления ингредиентов, необходимых для приготовления этого блюда, используйте команду\n/recipe_ingr_" + (meals.IndexOf(add) + 1).ToString() + " Название, кол-во, ед. измерения; Название, кол-во, ед. измерения;\nПример: \n/recipe_ingr_" + (meals.IndexOf(add) + 1).ToString() + " Томаты, 9, шт; Молоко, 5, л\n";
                 }
             }
             else
@@ -349,6 +357,135 @@ namespace TelegramBot
             conn.Close();
             return message;
         }
+
+        private string CommandRemoveRecipe(Update update)
+        {
+            string message = "";
+            bool flag = false;
+            int ind = -1;
+            SqlConnection conn = new SqlConnection("server=localhost;" + "Trusted_Connection=yes;" + "database=TelegramBot;");
+            conn.Open();
+            var meals = GetMeals(update);
+            var name = update.Message.Text.Substring(15).Trim();
+
+            if (name != null)
+            {
+                for (int i = 0; i < meals.Count(); i++)
+                {
+                    if (meals[i].Name.ToLower() == name.ToLower())
+                    {
+                        ind = i;
+                        flag = true;
+                    }
+                }
+                if (flag)
+                {
+                    meals.Remove(meals[ind]);
+                    var insCommand = new SqlCommand("delete from Recipe where Name = '" + name + "' AND Fridge_ID = " + update.Message.From.Id, conn);
+                    insCommand.ExecuteNonQuery();
+                    message = "Рецепт \"" + name + "\" успешно удален!";
+                }
+                else
+                    message = "Данный рецепт не найден";
+            }
+            else
+                message = "Ошибка";
+
+            conn.Close();
+            return message;
+        }
+
+        private string CommandAddRecipeIngr(Update update)
+        {
+            string message = "";
+            List<Meal> meals = GetMeals(update);
+            List<Product> products = new List<Product>();
+            SqlConnection conn = new SqlConnection("server=localhost;" + "Trusted_Connection=yes;" + "database=TelegramBot;");
+            conn.Open();
+            int space = update.Message.Text.IndexOf(" ");
+            var ingr = update.Message.Text.Substring(space + 1).Trim();
+
+            var productsArr = ingr.Split(';');
+            if (productsArr != null && productsArr[0] != "")
+            {
+                foreach (var product in productsArr)
+                {
+                    var arr = product.Split(',');
+                    if (arr.Length == 3)
+                    {
+                        products.Add(new Product(arr[0], int.Parse(arr[1]), arr[2]));
+                    }
+                }
+            }
+            else message = "Пусто";
+
+            int id = int.Parse(update.Message.Text.Substring(13, space - 13)) - 1;
+            if (id < meals.Count)
+            {
+                string ins = "";
+                foreach (var prod in products)
+                {
+                    if (prod.Amount > 0)
+                        ins += prod.Name + "," + prod.Amount + "," + prod.Unit + ";";
+                }
+                var insCommand = new SqlCommand("update Recipe set Ingridients = '" + ins + "'  where Name = '" + meals[id].Name + "' AND Fridge_ID = " + update.Message.From.Id, conn);
+                insCommand.ExecuteNonQuery();
+                message = "Ингредиенты у блюда \"" + meals[id].Name + "\"успешно обновлены!\nДля добавления текста этого рецепта используйте команду\n/recipe_text_" + (id + 1).ToString() + " Текст рецепта\nПример: \n/recipe_text_" + (id + 1).ToString() + " Сварить 5 пельменей.\n";
+            }
+            else
+                message = "Ошибка";
+
+            conn.Close();
+            return message;
+        }
+
+        private string CommandAddRecipeText(Update update)
+        {
+            string message = "";
+            List<Meal> meals = GetMeals(update);
+            SqlConnection conn = new SqlConnection("server=localhost;" + "Trusted_Connection=yes;" + "database=TelegramBot;");
+            conn.Open();
+            int space = update.Message.Text.IndexOf(" ");
+            var text = update.Message.Text.Substring(space + 1).Trim();
+
+            int id = int.Parse(update.Message.Text.Substring(13, space - 13)) - 1;
+            if (text != null && text != "")
+            {
+                var insCommand = new SqlCommand("select * from Recipe where Name = '" + meals[id].Name + "' AND Fridge_ID = " + update.Message.From.Id, conn);
+                insCommand.ExecuteNonQuery();
+                message = "Ингредиенты у блюда \"" + meals[id].Name + "\"успешно обновлены!\nДля добавления текста этого рецепта используйте команду\n/recipe_text_" + (id + 1).ToString() + " Текст рецепта\nПример: \n/recipe_text_" + (id + 1).ToString() + " Сварить 5 пельменей.\n";
+            }
+            else
+                message = "Ошибка";
+
+            conn.Close();
+            return message;
+        }
+
+        private string CommandShowRecipe(Update update)
+        {
+            string message = "";
+            List<Meal> meals = GetMeals(update);
+            SqlConnection conn = new SqlConnection("server=localhost;" + "Trusted_Connection=yes;" + "database=TelegramBot;");
+            conn.Open();
+            int id = int.Parse(update.Message.Text.Substring(13, update.Message.Text.Length - 13)) - 1;
+            if (id < meals.Count)
+            {
+                message += meals[id].Name + "\n\nНеобходимые ингредиенты:\n";
+                foreach (var elem in meals[id].Ingredients)
+                {
+                    message += elem.Name + ", " + elem.Amount + " " + elem.Unit + "\n";
+                }
+                message += "\n" + meals[id].Receipe;
+            }
+            else
+                message = "Ошибка";
+
+            conn.Close();
+
+            return message;
+        }
+
 
         private List<Meal> GetMeals(Update update)
         {
@@ -361,7 +498,7 @@ namespace TelegramBot
             
             while (getReader.Read())
             {
-                meals.Add(new Meal(getReader.GetString(1), GetMealIngr(update,getReader.GetString(1)), getReader.GetString(3)));
+                meals.Add(new Meal(getReader.GetString(1), GetMealIngr(update,getReader.GetString(1)), getReader.GetString(4)));
             }
             getReader.Close();
             conn.Close();
