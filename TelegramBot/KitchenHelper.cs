@@ -13,7 +13,7 @@ namespace TelegramBot
 {
     public class KitchenHelper
     {
-        private string token = "708214216:AAH2JC9sa5gUvI4pqp5kbmGWV40N0DwdDNQ";
+        private string token = "783289055:AAGzkG4PHu8fA0RaPvk8E7Qp2TorRCWdzt0";
         static TelegramBotClient Bot;
         List<MyUser> UsersList;
 
@@ -114,12 +114,10 @@ namespace TelegramBot
                         SqlDataReader getReader = null;
                         myCommand = new SqlCommand("select * from Fridge where id = " + update.Message.From.Id,
                                                              conn);
-                        var products = new List<string>();
+                        var products = new List<Tuple<string, string, string>>();
                         getReader = myCommand.ExecuteReader();
-                        Console.WriteLine(getReader.HasRows);
                         getReader.Read();
                         var temp = getReader.GetString(1);
-                        Console.WriteLine(temp == null);
                         var productsArr = temp.Split(';');
                         if (productsArr != null && temp != "")
                         {
@@ -127,19 +125,20 @@ namespace TelegramBot
                             {
                                 var arr = product.Split(',');
                                 if (arr.Length == 3)
-                                    products.Add(arr[0] + ' ' + arr[1] + ' ' + arr[2]);
+                                    products.Add(new Tuple<string,string,string>(arr[0],arr[1], arr[2]));
                                 else
                                     continue;
                             }
                             foreach (var elem in products)
                             {
-                                message += elem + "\n";
+                                message += elem.Item1 + ", " + elem.Item2 + " " + elem.Item3 + "\n";
                             }
                         }
                         else
                             message += "Пусто\n";
                     }
                     message += "\nДобавить ингредиенты можно при помощи команды /fridge_add Название, кол-во, ед. измерения \nПример: \n/fridge_add Томаты, 9, шт";
+                    message += "\nУдалить ингредиенты можно при помощи команды /fridge_remove Название, кол-во, ед. измерения \nПример: \n/fridge_remove Томаты, 9, шт";
                 }
                 catch (Exception e)
                 {
@@ -158,12 +157,10 @@ namespace TelegramBot
                 var myCommand = new SqlCommand("select * from Fridge where id = " + update.Message.From.Id,
                                                      conn);
                 getReader = myCommand.ExecuteReader();
-                var products = new List<string>();
-                Console.WriteLine(getReader.HasRows);
+                var products = new List<Tuple<string, string, string>>();
                 getReader.Read();
                 var temp = getReader.GetString(1);
                 var productsArr = temp.Split(';');
-                Console.WriteLine(productsArr.Length);
                 if (productsArr != null && productsArr[0] != "")
                 {
                     foreach (var product in productsArr)
@@ -171,8 +168,7 @@ namespace TelegramBot
                         var arr = product.Split(',');
                         if (arr.Length == 3)
                         {
-                            products.Add(arr[0] + ' ' + arr[1] + ' ' + arr[2]);
-                            Console.WriteLine(product[product.Length - 1]);
+                            products.Add(new Tuple<string, string, string>(arr[0], arr[1], arr[2]));
                         }
                     }
                 }
@@ -180,19 +176,103 @@ namespace TelegramBot
 
                 var ingr = update.Message.Text.Substring(12);
                 var parse = ingr.Split(',');
-                string ins = "";
-                if (parse != null && parse.Length == 3)
+                for (int i = 0; i < parse.Length; i++)
                 {
-                    products.Add(parse[0].Trim() + ' ' + parse[1].Trim() + ' ' + parse[2].Trim());
-                    Console.WriteLine(products.Last());
+                    parse[i] = parse[i].Trim();
+                }
+                string ins = "";
+                if (parse != null && parse.Length == 3 && int.Parse(parse[1]) > 0)
+                {
+                    bool flag = false;
+                    for (int i = 0; i < products.Count(); i++) {
+                        if (products[i].Item1.ToLower() == parse[0].ToLower() && products[i].Item3.ToLower() == parse[2].ToLower())
+                        {
+                            var t = new Tuple<string, string, string>(products[i].Item1, (int.Parse(products[i].Item2) + int.Parse(parse[1])).ToString(), products[i].Item3);
+                            products[i] = t;
+                            flag = true;
+                        }
+                        if (flag)
+                            break;
+                    }
+                    if (!flag)
+                        products.Add(new Tuple<string, string, string>(parse[0], parse[1], parse[2]));
+
                     foreach (var prod in products)
                     {
-                        var insparse = prod.Split(' ');
-                        ins += insparse[0] + "," + insparse[1] + "," + insparse[2] + ";";
+                        ins += prod.Item1 + "," + prod.Item2 + "," + prod.Item3 + ";";
                     }
                     var insCommand = new SqlCommand("update Fridge set products = '" + ins + "' where id = " + update.Message.From.Id, conn);
                     insCommand.ExecuteNonQuery();
-                    message = "Продукт \"" + parse[0].Trim() + "\" успешно добавлен!";
+                    message = "Продукт \"" + parse[0] + "\" успешно добавлен!";
+                }
+                else
+                    message = "Ошибка";
+
+                getReader.Close();
+            }
+
+            if (query.Contains("/fridge_remove "))
+            {
+                SqlConnection conn = new SqlConnection("server=localhost;" +
+                           "Trusted_Connection=yes;" +
+                           "database=TelegramBot;");
+                conn.Open();
+                SqlDataReader getReader = null;
+                var myCommand = new SqlCommand("select * from Fridge where id = " + update.Message.From.Id,
+                                                     conn);
+                getReader = myCommand.ExecuteReader();
+                var products = new List<Tuple<string, string, string>>();
+                getReader.Read();
+                var temp = getReader.GetString(1);
+                var productsArr = temp.Split(';');
+                if (productsArr != null && productsArr[0] != "")
+                {
+                    foreach (var product in productsArr)
+                    {
+                        var arr = product.Split(',');
+                        if (arr.Length == 3)
+                        {
+                            products.Add(new Tuple<string, string, string>(arr[0], arr[1], arr[2]));
+                        }
+                    }
+                }
+                getReader.Close();
+
+                var ingr = update.Message.Text.Substring(15);
+                var parse = ingr.Split(',');
+                for (int i = 0; i < parse.Length; i++)
+                {
+                    parse[i] = parse[i].Trim();
+                }
+                string ins = "";
+                bool flag = false;
+                if (parse != null && parse.Length == 3 && int.Parse(parse[1]) > 0)
+                {
+                    for (int i = 0; i < products.Count(); i++)
+                    {
+                        if (products[i].Item1.ToLower() == parse[0].ToLower() && products[i].Item3.ToLower() == parse[2].ToLower() && int.Parse(parse[1]) >= int.Parse(products[i].Item2))
+                        {
+                            var t = new Tuple<string, string, string>(products[i].Item1, (int.Parse(products[i].Item2) - int.Parse(parse[1])).ToString(), products[i].Item3);
+                            products[i] = t;
+                            flag = true;
+                        }
+                        if (flag)
+                            break;
+                    }
+
+                    if (flag)
+                    {
+                        foreach (var prod in products)
+                        {
+                            if (prod.Item2 != "0")
+                                ins += prod.Item1 + "," + prod.Item2 + "," + prod.Item3 + ";";
+                        }
+                        var insCommand = new SqlCommand("update Fridge set products = '" + ins + "' where id = " + update.Message.From.Id, conn);
+                        insCommand.ExecuteNonQuery();
+                        message = "Продукт \"" + parse[0] + "\" в количестве " + parse[1] + " успешно удален!";
+                    }
+                    else
+                        message = "Продукт отсутствует";
                 }
                 else
                     message = "Ошибка";
