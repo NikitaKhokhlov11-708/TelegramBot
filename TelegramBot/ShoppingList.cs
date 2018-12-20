@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace TelegramBot
 {
-    public class Basket
+    class ShoppingList
     {
-        public List<Product> listProducts;
+        public List<Product> list;
     }
-
-
 }
