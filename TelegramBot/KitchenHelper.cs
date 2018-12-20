@@ -250,7 +250,7 @@ namespace TelegramBot
                 {
                     for (int i = 0; i < products.Count(); i++)
                     {
-                        if (products[i].Item1.ToLower() == parse[0].ToLower() && products[i].Item3.ToLower() == parse[2].ToLower() && int.Parse(parse[1]) >= int.Parse(products[i].Item2))
+                        if (products[i].Item1.ToLower() == parse[0].ToLower() && products[i].Item3.ToLower() == parse[2].ToLower() && (int.Parse(products[i].Item2) - int.Parse(parse[1])) >= 0)
                         {
                             var t = new Tuple<string, string, string>(products[i].Item1, (int.Parse(products[i].Item2) - int.Parse(parse[1])).ToString(), products[i].Item3);
                             products[i] = t;
