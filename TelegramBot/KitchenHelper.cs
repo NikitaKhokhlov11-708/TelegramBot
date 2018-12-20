@@ -57,7 +57,7 @@ namespace TelegramBot
                         {
                             new KeyboardButton[]
                             {
-                                new KeyboardButton("🖱"),
+                                new KeyboardButton("🥫"),
                                 new KeyboardButton("📖"),
                                 new KeyboardButton("🛒")
                             }
