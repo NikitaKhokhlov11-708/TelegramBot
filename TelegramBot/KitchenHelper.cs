@@ -131,7 +131,7 @@ namespace TelegramBot
                             }
                             foreach (var elem in products)
                             {
-                                message += elem.Item1 + ", " + elem.Item2 + " " + elem.Item3 + "\n";
+                                message += (products.IndexOf(elem) + 1).ToString() + ". " + elem.Item1 + ", " + elem.Item2 + " " + elem.Item3 + "\n";
                             }
                         }
                         else
