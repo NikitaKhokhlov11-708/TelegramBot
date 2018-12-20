@@ -8,21 +8,15 @@ namespace TelegramBot
 {
     public class Product
     {
-        public String name;
-        public String description;
-        public int cost;
-        public bool availability;
-        public int currency;
-        public String typeCurrency;
+        public string Name;
+        public int Amount;
+        public string Unit;
 
-        public Product(string name, string description, int cost, bool availability, int currency, string typeCurrency)
+        public Product(string name, int amount, string unit)
         {
-            this.name = name;
-            this.description = description;
-            this.cost = cost;
-            this.availability = availability;
-            this.currency = currency;
-            this.typeCurrency = typeCurrency;
+            Name = name;
+            Amount = amount;
+            Unit = unit;
         }
     }
 

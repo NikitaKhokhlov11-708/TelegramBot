@@ -8,9 +8,19 @@ namespace TelegramBot
 {
     public class Meal
     {
-        List<Product> ingridients;
-        String receipe;
-        int totalCost;
-        bool totalAvailability;
+        public int ID;
+        public string Name;
+        public int OwnerID;
+        public List<Product> Ingredients;
+        public string Receipe;
+
+        public Meal(int id, string name, int ownerid, List<Product> ingredients, string receipe)
+        {
+            ID = id;
+            Name = name;
+            OwnerID = ownerid;
+            Ingredients = ingredients;
+            Receipe = receipe;
+        }
     }
 }
