@@ -13,7 +13,7 @@ namespace TelegramBot
 {
     public class KitchenHelper
     {
-        private const string token = "783289055:AAGzkG4PHu8fA0RaPvk8E7Qp2TorRCWdzt0";
+        private const string token = "708214216:AAH2JC9sa5gUvI4pqp5kbmGWV40N0DwdDNQ";
         public TelegramBotClient Bot;
 
         public KitchenHelper()
@@ -57,7 +57,7 @@ namespace TelegramBot
                         {
                             new KeyboardButton[]
                             {
-                                new KeyboardButton("🥫"),
+                                new KeyboardButton("🖱"),
                                 new KeyboardButton("📖"),
                                 new KeyboardButton("🛒")
                             }
