@@ -13,7 +13,7 @@ namespace TelegramBot
 {
     public class KitchenHelper
     {
-        private const string token = "735411171:AAF2w4vg_QuA19XqmyTsTtb-vucH9AVf4wU";
+        private const string token = "675792902:AAEheSeBChQvn6axu6KlXhjbM8bM0IFZKrU";
         public TelegramBotClient Bot;
 
         public KitchenHelper()
@@ -157,7 +157,7 @@ namespace TelegramBot
                 }
                 else
                 {
-                    message = "Ваш холодильник: \n";
+                    message = "🥫🥫🥫Ваш холодильник🥫🥫🥫\n";
                     var products = GetProducts(update);
                     if (products != null)
                     {
@@ -293,7 +293,7 @@ namespace TelegramBot
                 SqlCommand myCommand = new SqlCommand("SELECT * FROM Recipe WHERE Fridge_ID = " + update.Message.From.Id,
                                                          conn);
                 myReader = myCommand.ExecuteReader();
-                message = "Ваши рецепты: \n";
+                message = "📖📖📖Ваши рецепты📖📖📖\n";
                 if (!myReader.HasRows)
                 {
                     myReader.Close();
@@ -505,9 +505,9 @@ namespace TelegramBot
             List<Product> meals = GetShoppingList(update);
             SqlConnection conn = new SqlConnection("server=localhost;" + "Trusted_Connection=yes;" + "database=TelegramBot;");
             conn.Open();
-            message = "Ваш список покупок: \n";
+            message = "🛒🛒🛒Ваш список покупок🛒🛒🛒\n";
             var products = GetShoppingList(update);
-            if (products != null)
+            if (products != null && products.Count != 0)
             {
                 foreach (var elem in products)
                 {
