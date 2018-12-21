@@ -6,17 +6,18 @@ using System.Threading.Tasks;
 
 namespace TelegramBot
 {
+    //класс блюда/рецепта
     public class Meal
     {
-        public string Name;
-        public List<Product> Ingredients;
-        public string Receipe;
+        public string Name;                     //название
+        public List<Product> Ingredients;       //список ингредиентов из списка продуктов
+        public string Recipe;                   //описание рецепта
 
         public Meal(string name, List<Product> ingredients, string receipe)
         {
             Name = name;
             Ingredients = ingredients;
-            Receipe = receipe;
+            Recipe = receipe;
         }
     }
 }

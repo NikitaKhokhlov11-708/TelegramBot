@@ -13,13 +13,15 @@ namespace TelegramBot
 {
     public class KitchenHelper
     {
-        private const string token = "675792902:AAEheSeBChQvn6axu6KlXhjbM8bM0IFZKrU";
+        //Api бота
+        private const string token = "708214216:AAH2JC9sa5gUvI4pqp5kbmGWV40N0DwdDNQ";
         public TelegramBotClient Bot;
 
         public KitchenHelper()
         {
         }
 
+        //запуск бота
         public void TestApiAsync()
         {
             try
@@ -35,6 +37,7 @@ namespace TelegramBot
             }
         }
 
+        //обработка сообщений пользователя
         private async void ReceiveMessage()
         {
             Console.WriteLine(
@@ -53,13 +56,14 @@ namespace TelegramBot
                     {
                         var rkm = new ReplyKeyboardMarkup();
                         rkm.ResizeKeyboard = true;
+                        //выпадают на выбор 3 смайла, отвечающие за некоторые запросы
                         rkm.Keyboard = new KeyboardButton[][]
                         {
                             new KeyboardButton[]
                             {
-                                new KeyboardButton("🥫"),
-                                new KeyboardButton("📖"),
-                                new KeyboardButton("🛒")
+                                new KeyboardButton("🥫"),     //холодильник
+                                new KeyboardButton("📖"),    //рецепты
+                                new KeyboardButton("🛒")     //список покупок
                             }
                         };
 
@@ -74,50 +78,68 @@ namespace TelegramBot
             }
         }
 
+        //обработка запросов
         private string AnalyzeQuery(Update update)
         {
             var message = "Неизвестная команда.";
             var query = update.Message.Text;
-            
+
             switch (query)
             {
                 case "/start":
-                    message = CommandStart();
+                    //стартовая команда при запуске бота
+                    message = CommandStart(update);
                     break;
 
                 case "🥫":
+                    //основная команда, создаёт холодильник
+                    //когда холодильник создан, выводит его содержимое
                     message = CommandFridge(update);
                     break;
 
                 case "📖":
+                    //вывод сохранённых рецептов
                     message = CommandRecipes(update);
                     break;
 
                 case "🛒":
+                    //список покупок
                     message = CommandShopping(update);
                     break;
 
+                //команды, вводимые пользователем самостоятельно
                 default:
+                    //добавление продуктов в холодильник
                     if (query.Contains("/fridge_add "))
                         message = CommandAddProduct(update);
+                    //удаление продуктов из холодильника
                     else if (query.Contains("/fridge_remove "))
                         message = CommandRemoveProduct(update);
+                    //добавление рецепта
                     else if (query.Contains("/recipe_add "))
                         message = CommandAddRecipe(update);
+                    //удаление рецепта
                     else if (query.Contains("/recipe_remove "))
                         message = CommandRemoveRecipe(update);
+                    //добавление ингредиента в рецепт
                     else if (query.Contains("/recipe_ingr_"))
                         message = CommandAddRecipeIngr(update);
+                    //добавление описания в рецепт
                     else if (query.Contains("/recipe_text_"))
                         message = CommandAddRecipeText(update);
+                    //вывод рецепта
                     else if (query.Contains("/recipe_show_"))
                         message = CommandShowRecipe(update);
+                    //список покупок
                     else if (query.Contains("/shopping_add "))
                         message = CommandAddShopping(update);
+                    //удаление продукта из списка
                     else if (query.Contains("/shopping_remove "))
                         message = CommandRemoveShopping(update);
+                    //добавление необходимых продуктов в список покупок
                     else if (query.Contains("/shopping_meal_"))
                         message = BuyForMeal(update);
+                    //приготовить рецепт = минус соответствующие продукты из холодильника
                     else if (query.Contains("/cook_"))
                         message = CommandCook(update);
                     else
@@ -128,14 +150,61 @@ namespace TelegramBot
             return message;
         }
 
-        private string CommandStart()
+        //стартовая команда
+        private string CommandStart(Update update)
         {
-            return "Здравствуйте! Я — кухонный бот-помощник. Для регистрации нажмите на 🥫.";
+            string message = "";
+
+            Registration(update);
+
+            return "Здравствуйте! Я — кухонный бот-помощник. Вы успешно зарегистровались! \nИспользуйте команды для продолжения:\n \n" +
+                "🥫 выводит содержимое холодильника\n" +
+                "📖 вывод сохранённых рецептов\n" +
+                "🛒 список покупок\n";
         }
 
+        //регистрация
+        private void Registration(Update update)
+        {
+            //подключение к бд
+            SqlConnection conn = new SqlConnection("server=localhost;" +
+                                       "Trusted_Connection=yes;" +
+                                       "database=TelegramBot;");
+            conn.Open();
+
+            var myCommand = new SqlCommand("SELECT * FROM Fridge WHERE id = " + update.Message.From.Id,
+                                                     conn);
+            var myReader = myCommand.ExecuteReader();
+
+            //добавление поля в таблицу Fridge (холодильник)
+            if (!myReader.HasRows)
+            {
+                myReader.Close();
+                //добавление в таблицу Fridge id пользователя
+                myCommand = new SqlCommand("INSERT INTO Fridge VALUES (" + update.Message.From.Id + ",'')", conn);
+                myCommand.ExecuteNonQuery();
+            }
+
+            //добавление поля в таблицу Shopping (списка покупок)
+            myCommand = new SqlCommand("SELECT * FROM Shopping WHERE id = " + update.Message.From.Id,
+                                                 conn);
+            
+            myReader = myCommand.ExecuteReader();
+            //если список ещё не создан, создаём
+            if (!myReader.HasRows)
+            {
+                myReader.Close();
+                myCommand = new SqlCommand("INSERT INTO Shopping VALUES (" + update.Message.From.Id + ",'')", conn);
+                myCommand.ExecuteNonQuery();
+            }
+
+        }
+
+        //холодильник (первый смайл)
         private string CommandFridge(Update update)
         {
             string message = "";
+            //подключение к бд
             SqlConnection conn = new SqlConnection("server=localhost;" +
                                        "Trusted_Connection=yes;" +
                                        "database=TelegramBot;");
@@ -148,27 +217,25 @@ namespace TelegramBot
                                                          conn);
                 myReader = myCommand.ExecuteReader();
 
-                if (!myReader.HasRows)
+                //холодильник уже создан, выводим его содержимое
+
+                //строка, которая выведется пользователю
+                message = "🥫🥫🥫Ваш холодильник🥫🥫🥫\n";
+                //получение продуктов из бд
+                var products = GetProducts(update);
+                if (products != null)
                 {
-                    myReader.Close();
-                    myCommand = new SqlCommand("INSERT INTO Fridge VALUES (" + update.Message.From.Id + ",'')", conn);
-                    myCommand.ExecuteNonQuery();
-                    message = "Вы успешно зарегистрировались. ";
+                    //проход по продуктам
+                    foreach (var elem in products)
+                    {
+                        //добавление в строку продукта
+                        //id + название продукта + количество + размерность
+                        message += (products.IndexOf(elem) + 1).ToString() + ". " + elem.Name + ", " + elem.Amount + " " + elem.Unit + "\n";
+                    }
                 }
                 else
-                {
-                    message = "🥫🥫🥫Ваш холодильник🥫🥫🥫\n";
-                    var products = GetProducts(update);
-                    if (products != null)
-                    {
-                        foreach (var elem in products)
-                        {
-                            message += (products.IndexOf(elem) + 1).ToString() + ". " + elem.Name + ", " + elem.Amount + " " + elem.Unit + "\n";
-                        }
-                    }
-                    else
-                        message += "Пусто\n";
-                }
+                    message += "Пусто\n";
+
                 message += "\nДобавить продукты можно при помощи команды /fridge_add Название, кол-во, ед. измерения \nПример: \n/fridge_add Томаты, 9, шт\n";
                 message += "\nУдалить продукты можно при помощи команды /fridge_remove Название, кол-во, ед. измерения \nПример: \n/fridge_remove Томаты, 9, шт";
             }
@@ -181,42 +248,58 @@ namespace TelegramBot
             return message;
         }
 
+        //добавление продукта в холодильник /fridge_add
         private string CommandAddProduct(Update update)
         {
             string message = "";
             bool flag = false;
             SqlConnection conn = new SqlConnection("server=localhost;" + "Trusted_Connection=yes;" + "database=TelegramBot;");
             conn.Open();
+            //получение продуктов из бд
             var products = GetProducts(update);
+            //первые 12 символов "/fridge_add"
             var ingr = update.Message.Text.Substring(12);
+            //запрос выглядит так 
+            // /fridge_add Томаты, 9, шт
+            // мы убрали /fridge_add
+            //осталось  "Томаты, 9, шт"
+            //разбиваем эту строку на массив из 3 строк по запятым
             var parse = ingr.Split(',');
             string ins = "";
 
             for (int i = 0; i < parse.Length; i++)
             {
+                //убираем лишние пробелы в начале и конце строк
                 parse[i] = parse[i].Trim();
             }
-            
+
+            //если введённые данные пользователем корректны, продолжаем
             if (parse != null && parse.Length == 3 && int.Parse(parse[1]) > 0)
             {
                 for (int i = 0; i < products.Count(); i++)
                 {
+                    //если в списке продуктов уже имеется данный продукт, ставим флаг
                     if (products[i].Name.ToLower() == parse[0].ToLower() && products[i].Unit.ToLower() == parse[2].ToLower())
                     {
+                        //приплюсовываем parse[1] к количеству объекта
                         var t = new Product(products[i].Name, products[i].Amount + int.Parse(parse[1]), products[i].Unit);
                         products[i] = t;
                         flag = true;
                     }
+                    //если нашли, выходим из цикла
                     if (flag)
                         break;
                 }
+                //если продукта ещё нет в списке, добавляем
                 if (!flag)
                     products.Add(new Product(parse[0], int.Parse(parse[1]), parse[2]));
 
+                //обновляем данные о всех продуктах
                 foreach (var prod in products)
                 {
                     ins += prod.Name + "," + prod.Amount + "," + prod.Unit + ";";
                 }
+                //sql комманда для обновления содержимого таблицы
                 var insCommand = new SqlCommand("UPDATE  Fridge SET products = '" + ins + "' WHERE id = " + update.Message.From.Id, conn);
                 insCommand.ExecuteNonQuery();
                 message = "Продукт \"" + parse[0] + "\" успешно добавлен!";
@@ -228,6 +311,7 @@ namespace TelegramBot
             return message;
         }
 
+        //удаление продукта из холодильника /fridge_remove
         private string CommandRemoveProduct(Update update)
         {
             string message = "";
@@ -235,21 +319,25 @@ namespace TelegramBot
             bool flag = false;
             SqlConnection conn = new SqlConnection("server=localhost;" + "Trusted_Connection=yes;" + "database=TelegramBot;");
             conn.Open();
+            //первые 15 символов "/fridge_add"
             var ingr = update.Message.Text.Substring(15);
             var parse = ingr.Split(',');
+            //получение продуктов из бд
             var products = GetProducts(update);
 
             for (int i = 0; i < parse.Length; i++)
             {
                 parse[i] = parse[i].Trim();
             }
-            
+
             if (parse != null && parse.Length == 3 && int.Parse(parse[1]) > 0)
             {
+                //ищем продукт в холодильнике
                 for (int i = 0; i < products.Count(); i++)
                 {
                     if (products[i].Name.ToLower() == parse[0].ToLower() && products[i].Unit.ToLower() == parse[2].ToLower() && (products[i].Amount - int.Parse(parse[1]) >= 0))
                     {
+                        //вычитаем parse[1] из количества
                         var t = new Product(products[i].Name, products[i].Amount - int.Parse(parse[1]), products[i].Unit);
                         products[i] = t;
                         flag = true;
@@ -262,6 +350,7 @@ namespace TelegramBot
                 {
                     foreach (var prod in products)
                     {
+                        //если количество в продукте корректное, обновляем информацию
                         if (prod.Amount > 0)
                             ins += prod.Name + "," + prod.Amount + "," + prod.Unit + ";";
                     }
@@ -279,6 +368,7 @@ namespace TelegramBot
             return message;
         }
 
+        //команда, которая выводит сохранённые рецепты (второй смайл)
         private string CommandRecipes(Update update)
         {
             string message = "";
@@ -294,6 +384,7 @@ namespace TelegramBot
                                                          conn);
                 myReader = myCommand.ExecuteReader();
                 message = "📖📖📖Ваши рецепты📖📖📖\n";
+                //если рецептов нет
                 if (!myReader.HasRows)
                 {
                     myReader.Close();
@@ -302,12 +393,16 @@ namespace TelegramBot
                 else
                 {
                     myReader.Close();
+                    // Meals = рецепты
+                    //получение рецептов из бд
                     var meals = GetMeals(update);
 
                     if (meals != null)
                     {
                         foreach (var m in meals)
                         {
+                            //выводит название рецепта
+                            //если нужно полное описание, пользователь вводит запрос с /recipe_show_
                             message += (meals.IndexOf(m) + 1).ToString() + ". " + m.Name + "\n Показать рецепт: /recipe_show_" + (meals.IndexOf(m) + 1).ToString() + "\n";
                         }
                     }
@@ -326,12 +421,14 @@ namespace TelegramBot
             return message;
         }
 
+        //добавление рецепта /recipe_remove
         private string CommandAddRecipe(Update update)
         {
             string message = "";
             bool flag = false;
             SqlConnection conn = new SqlConnection("server=localhost;" + "Trusted_Connection=yes;" + "database=TelegramBot;");
             conn.Open();
+            //получение рецептов из бд
             var meals = GetMeals(update);
             var name = update.Message.Text.Substring(12).Trim();
 
@@ -344,13 +441,17 @@ namespace TelegramBot
                     {
                         flag = true;
                     }
+                    //если уже существует рецепт с таким названием, ошибка
                     if (flag)
                     {
                         message = "Ошибка";
                         break;
                     }
-                        
+
                 }
+                //иначе добавляем
+                //в данном методе только название рецепта
+                //ингредиенты добавляем в другом методе, в случае если пользователю нужно хранить только название рецепта
                 if (!flag)
                 {
                     add = new Meal(name, new List<Product>(), "");
@@ -367,6 +468,7 @@ namespace TelegramBot
             return message;
         }
 
+        //удаление рецепта  /recipe_remove
         private string CommandRemoveRecipe(Update update)
         {
             string message = "";
@@ -374,11 +476,13 @@ namespace TelegramBot
             int ind = -1;
             SqlConnection conn = new SqlConnection("server=localhost;" + "Trusted_Connection=yes;" + "database=TelegramBot;");
             conn.Open();
+            //получение рецептов из бд
             var meals = GetMeals(update);
             var name = update.Message.Text.Substring(15).Trim();
 
             if (name != null)
             {
+                //поиск
                 for (int i = 0; i < meals.Count(); i++)
                 {
                     if (meals[i].Name.ToLower() == name.ToLower())
@@ -387,6 +491,7 @@ namespace TelegramBot
                         flag = true;
                     }
                 }
+                //удаление
                 if (flag)
                 {
                     meals.Remove(meals[ind]);
@@ -404,16 +509,20 @@ namespace TelegramBot
             return message;
         }
 
+        //добавление ингредиентов в указанный рецепт (по id рецепта) /recipe_ingr_
         private string CommandAddRecipeIngr(Update update)
         {
             string message = "";
+            //получение рецептов из бд
             List<Meal> meals = GetMeals(update);
             List<Product> products = new List<Product>();
             SqlConnection conn = new SqlConnection("server=localhost;" + "Trusted_Connection=yes;" + "database=TelegramBot;");
             conn.Open();
+            //до пробела id, после ингредиенты через запятую
             int space = update.Message.Text.IndexOf(" ");
             var ingr = update.Message.Text.Substring(space + 1).Trim();
 
+            //список ингредентов
             var productsArr = ingr.Split(';');
             if (productsArr != null && productsArr[0] != "")
             {
@@ -429,6 +538,8 @@ namespace TelegramBot
             else message = "Пусто";
 
             int id = int.Parse(update.Message.Text.Substring(13, space - 13)) - 1;
+
+            //если id корректный, добавляем ингредиенты к рецепту
             if (id < meals.Count && id >= 0)
             {
                 string ins = "";
@@ -448,12 +559,15 @@ namespace TelegramBot
             return message;
         }
 
+        //добавление описания рецепта /recipe_text_
         private string CommandAddRecipeText(Update update)
         {
             string message = "";
+            //получение рецептов из бд
             List<Meal> meals = GetMeals(update);
             SqlConnection conn = new SqlConnection("server=localhost;" + "Trusted_Connection=yes;" + "database=TelegramBot;");
             conn.Open();
+            //до пробела id, после ингредиенты через запятую
             int space = update.Message.Text.IndexOf(" ");
             var text = update.Message.Text.Substring(space + 1).Trim();
 
@@ -471,24 +585,29 @@ namespace TelegramBot
             return message;
         }
 
+        //вывод рецепта пользователю /recipe_show_ 
         private string CommandShowRecipe(Update update)
         {
             string message = "";
+            //получение рецептов из бд
             List<Meal> meals = GetMeals(update);
             SqlConnection conn = new SqlConnection("server=localhost;" + "Trusted_Connection=yes;" + "database=TelegramBot;");
             conn.Open();
             int id = int.Parse(update.Message.Text.Substring(13, update.Message.Text.Length - 13)) - 1;
+            //если id корректный
             if (id < meals.Count && id >= 0)
             {
+                //вывод необходимых ингредиентов в сообщение пользователю
                 message += meals[id].Name + "\n\nНеобходимые ингредиенты:\n";
                 foreach (var elem in meals[id].Ingredients)
                 {
                     message += elem.Name + ", " + elem.Amount + " " + elem.Unit + "\n";
                 }
-                message += "\n" + meals[id].Receipe + "\n\n";
+                message += "\n" + meals[id].Recipe + "\n\n";
+                //пишем пользователю, достаточно ли у него продуктов в холодильнике
                 if (AddNotEnough(update, meals[id].Name).Count == 0)
                     message += "У Вас хватает ингредиентов для приготовления этого блюда. Приготовить: \n/cook_" + (id + 1).ToString();
-                else 
+                else
                     message += "У Вас не хватает ингредиентов для приготовления этого блюда. Добаавить недостающие ингредиенты в список покупок: \n/shopping_meal_" + (id + 1).ToString();
             }
             else
@@ -499,13 +618,15 @@ namespace TelegramBot
             return message;
         }
 
+        //список покупок /shopping_meal_
         private string CommandShopping(Update update)
         {
             string message = "";
-            List<Product> meals = GetShoppingList(update);
             SqlConnection conn = new SqlConnection("server=localhost;" + "Trusted_Connection=yes;" + "database=TelegramBot;");
             conn.Open();
+
             message = "🛒🛒🛒Ваш список покупок🛒🛒🛒\n";
+            //получение списка продуктов из бд
             var products = GetShoppingList(update);
             if (products != null && products.Count != 0)
             {
@@ -525,13 +646,16 @@ namespace TelegramBot
             return message;
         }
 
+        //добавление продукта в список покупок /shopping_add
         private string CommandAddShopping(Update update)
         {
             string message = "";
             bool flag = false;
             SqlConnection conn = new SqlConnection("server=localhost;" + "Trusted_Connection=yes;" + "database=TelegramBot;");
             conn.Open();
+            //получение списка продуктов из бд
             var products = GetShoppingList(update);
+            //первые 14 символов "/shopping_add"
             var ingr = update.Message.Text.Substring(14);
             var parse = ingr.Split(',');
             string ins = "";
@@ -543,6 +667,7 @@ namespace TelegramBot
 
             if (parse != null && parse.Length == 3 && int.Parse(parse[1]) > 0)
             {
+                //поиск продукта в списке покупок
                 for (int i = 0; i < products.Count(); i++)
                 {
                     if (products[i].Name.ToLower() == parse[0].ToLower() && products[i].Unit.ToLower() == parse[2].ToLower())
@@ -554,6 +679,7 @@ namespace TelegramBot
                     if (flag)
                         break;
                 }
+                //если его нет, добавляем
                 if (!flag)
                     products.Add(new Product(parse[0], int.Parse(parse[1]), parse[2]));
 
@@ -561,6 +687,7 @@ namespace TelegramBot
                 {
                     ins += prod.Name + "," + prod.Amount + "," + prod.Unit + ";";
                 }
+                //обновляем бд
                 var insCommand = new SqlCommand("UPDATE Shopping SET products = '" + ins + "' WHERE id = " + update.Message.From.Id, conn);
                 insCommand.ExecuteNonQuery();
                 message = "Продукт \"" + parse[0] + "\" успешно добавлен!";
@@ -572,6 +699,7 @@ namespace TelegramBot
             return message;
         }
 
+        //удаление продукта из списка покупок /shopping_remove
         private string CommandRemoveShopping(Update update)
         {
             string message = "";
@@ -579,6 +707,7 @@ namespace TelegramBot
             bool flag = false;
             SqlConnection conn = new SqlConnection("server=localhost;" + "Trusted_Connection=yes;" + "database=TelegramBot;");
             conn.Open();
+            //первые 14 символов "/shopping_remove"
             var ingr = update.Message.Text.Substring(17);
             var parse = ingr.Split(',');
             var products = GetShoppingList(update);
@@ -590,6 +719,7 @@ namespace TelegramBot
 
             if (parse != null && parse.Length == 3 && int.Parse(parse[1]) > 0)
             {
+                //поиск продукта в списке покупок
                 for (int i = 0; i < products.Count(); i++)
                 {
                     if (products[i].Name.ToLower() == parse[0].ToLower() && products[i].Unit.ToLower() == parse[2].ToLower() && (products[i].Amount - int.Parse(parse[1]) >= 0))
@@ -609,7 +739,8 @@ namespace TelegramBot
                         if (prod.Amount > 0)
                             ins += prod.Name + "," + prod.Amount + "," + prod.Unit + ";";
                     }
-                    var insCommand = new SqlCommand("UPDATE Shopping SET products = '" + ins + "' WHERE id = " + update .Message.From.Id, conn);
+                    //обновляем бд
+                    var insCommand = new SqlCommand("UPDATE Shopping SET products = '" + ins + "' WHERE id = " + update.Message.From.Id, conn);
                     insCommand.ExecuteNonQuery();
                     message = "Продукт \"" + parse[0] + "\" в количестве " + parse[1] + " успешно удален!";
                 }
@@ -623,6 +754,7 @@ namespace TelegramBot
             return message;
         }
 
+        //получение списка рецептов из бд
         private List<Meal> GetMeals(Update update)
         {
             SqlConnection conn = new SqlConnection("server=localhost;" + "Trusted_Connection=yes;" + "database=TelegramBot;");
@@ -631,16 +763,18 @@ namespace TelegramBot
             SqlDataReader getReader = null;
             var myCommand = new SqlCommand("SELECT * FROM Recipe WHERE Fridge_ID = " + update.Message.From.Id, conn);
             getReader = myCommand.ExecuteReader();
-            
+
             while (getReader.Read())
             {
-                meals.Add(new Meal(getReader.GetString(1), GetMealIngr(update,getReader.GetString(1)), getReader.GetString(4)));
+                //добавление в список рецепта
+                meals.Add(new Meal(getReader.GetString(1), GetMealIngr(update, getReader.GetString(1)), getReader.GetString(4)));
             }
             getReader.Close();
             conn.Close();
             return meals;
         }
 
+        //получение продуктов из бд в список из Product
         private List<Product> GetProducts(Update update)
         {
             SqlConnection conn = new SqlConnection("server=localhost;" + "Trusted_Connection=yes;" + "database=TelegramBot;");
@@ -651,8 +785,9 @@ namespace TelegramBot
             var myCommand = new SqlCommand("SELECT * FROM Fridge WHERE id = " + update.Message.From.Id,
                                                  conn);
             getReader = myCommand.ExecuteReader();
-            
+
             getReader.Read();
+            //парсинг данных из бд
             var temp = getReader.GetString(1);
             var productsArr = temp.Split(';');
             if (productsArr != null && productsArr[0] != "")
@@ -662,6 +797,7 @@ namespace TelegramBot
                     var arr = product.Split(',');
                     if (arr.Length == 3)
                     {
+                        //добавление продукта в список
                         products.Add(new Product(arr[0], int.Parse(arr[1]), arr[2]));
                     }
                 }
@@ -672,50 +808,49 @@ namespace TelegramBot
             return products;
         }
 
+        //получение списка покупок из бд
         private List<Product> GetShoppingList(Update update)
         {
             SqlConnection conn = new SqlConnection("server=localhost;" + "Trusted_Connection=yes;" + "database=TelegramBot;");
             conn.Open();
-
-            var products = new List<Product>();
+            //список покупок
+            var shoppingList = new List<Product>();
             SqlDataReader getReader = null;
             var myCommand = new SqlCommand("SELECT * FROM Shopping WHERE id = " + update.Message.From.Id,
                                                  conn);
             getReader = myCommand.ExecuteReader();
-            if (!getReader.HasRows)
+
+
+            getReader.Read();
+            //парсинг данных из бд
+            var temp = getReader.GetString(1);
+            var productsArr = temp.Split(';');
+            if (productsArr != null && productsArr[0] != "")
             {
-                getReader.Close();
-                myCommand = new SqlCommand("INSERT INTO Shopping VALUES (" + update.Message.From.Id + ",'')", conn);
-                myCommand.ExecuteNonQuery();
-            }
-            else
-            {
-                getReader.Read();
-                var temp = getReader.GetString(1);
-                var productsArr = temp.Split(';');
-                if (productsArr != null && productsArr[0] != "")
+                foreach (var product in productsArr)
                 {
-                    foreach (var product in productsArr)
+                    var arr = product.Split(',');
+                    if (arr.Length == 3)
                     {
-                        var arr = product.Split(',');
-                        if (arr.Length == 3)
-                        {
-                            products.Add(new Product(arr[0], int.Parse(arr[1]), arr[2]));
-                        }
+                        //добавление продукта в список
+                        shoppingList.Add(new Product(arr[0], int.Parse(arr[1]), arr[2]));
                     }
                 }
-                getReader.Close();
-                conn.Close();
             }
+            getReader.Close();
+            conn.Close();
 
-            return products;
+
+            return shoppingList;
         }
 
+        //получение ингредиентов указанного рецепта (по названию)
         private List<Product> GetMealIngr(Update update, string name)
         {
             SqlConnection conn = new SqlConnection("server=localhost;" + "Trusted_Connection=yes;" + "database=TelegramBot;");
             conn.Open();
-            var products = new List<Product>();
+            //список игридиентов
+            var ingredients = new List<Product>();
             SqlDataReader getReader = null;
             var myCommand = new SqlCommand("SELECT * FROM Recipe WHERE Fridge_ID = " + update.Message.From.Id + " AND Name = '" + name + "'",
                                                  conn);
@@ -731,25 +866,29 @@ namespace TelegramBot
                     var arr = product.Split(',');
                     if (arr.Length == 3)
                     {
-                        products.Add(new Product(arr[0], int.Parse(arr[1]), arr[2]));
+                        //добавление ингредиентов в список
+                        ingredients.Add(new Product(arr[0], int.Parse(arr[1]), arr[2]));
                     }
                 }
             }
             getReader.Close();
             conn.Close();
 
-            return products;
+            return ingredients;
         }
 
+        //добавление всех продуктов для рецепта в список покупок
         private string BuyForMeal(Update update)
         {
             string message = "";
+            //получение рецептов из бд
             List<Meal> meals = GetMeals(update);
             SqlConnection conn = new SqlConnection("server=localhost;" + "Trusted_Connection=yes;" + "database=TelegramBot;");
             conn.Open();
             int id = int.Parse(update.Message.Text.Substring(15, update.Message.Text.Length - 15)) - 1;
             if (id < meals.Count && id >= 0)
             {
+                //получение списка недостающих проектов
                 var toBuy = AddNotEnough(update, meals[id].Name);
                 string ins = "";
                 foreach (var prod in toBuy)
@@ -768,9 +907,12 @@ namespace TelegramBot
             return message;
         }
 
-        private List<Product> AddNotEnough (Update update, string name)
+        //получение списка недостающих для рецепта продуктов
+        private List<Product> AddNotEnough(Update update, string name)
         {
+            //список продуктов в холодильнике
             var yourList = GetProducts(update);
+            //ингредиенты нужные для рецепта
             var mealIngr = GetMealIngr(update, name);
             var shop = new List<Product>();
 
@@ -783,11 +925,13 @@ namespace TelegramBot
                     if (y.Name == m.Name && y.Unit == m.Unit)
                     {
                         toAdd = false;
+                        //если ингредиент есть в холодильнике, но в недостаточном количестве
                         if (y.Amount < m.Amount)
                             shop.Add(new Product(m.Name, m.Amount - y.Amount, m.Unit));
                     }
                 }
 
+                //если в списке вообще нет данного ингредиента
                 if (toAdd)
                     shop.Add(m);
             }
@@ -795,6 +939,7 @@ namespace TelegramBot
             return shop;
         }
 
+        //приготовить = использовать необходимые продукты из холодильника
         private string CommandCook(Update update)
         {
             List<Meal> meals = GetMeals(update);
@@ -808,7 +953,8 @@ namespace TelegramBot
             return "Ошибка";
         }
 
-        private string Cook (Update update, string name)
+        //удаление использованных (в необходимом количестве) продуктов из холодильника
+        private string Cook(Update update, string name)
         {
             SqlConnection conn = new SqlConnection("server=localhost;" + "Trusted_Connection=yes;" + "database=TelegramBot;");
             conn.Open();
@@ -821,8 +967,10 @@ namespace TelegramBot
                 bool flag = false;
                 for (int i = 0; i < yourList.Count; i++)
                 {
+                    //нахождение соответственных ингредиентов в холодильнике
                     if (yourList[i].Name.ToLower() == m.Name.ToLower() && yourList[i].Unit.ToLower() == m.Unit.ToLower() && (yourList[i].Amount - m.Amount) >= 0)
                     {
+                        //удаление использованного количества
                         var t = new Product(yourList[i].Name, yourList[i].Amount - m.Amount, yourList[i].Unit);
                         yourList[i] = t;
                         flag = true;
@@ -834,6 +982,7 @@ namespace TelegramBot
                     return "Ошибка";
             }
 
+            //обновление бд
             foreach (var prod in yourList)
             {
                 if (prod.Amount > 0)

@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 
 namespace TelegramBot
 {
+    //продукт           
     public class Product
     {
-        public string Name;
-        public int Amount;
-        public string Unit;
+        public string Name;             //название продукта
+        public int Amount;              //количество
+        public string Unit;             //размерность
 
         public Product(string name, int amount, string unit)
         {

@@ -6,7 +6,9 @@ namespace TelegramBot
     {
         static void Main(string[] args)
         {
+            //инициализация бота
             KitchenHelper bot = new KitchenHelper();
+            //запуск
             bot.TestApiAsync();
             Console.ReadLine();
         }
