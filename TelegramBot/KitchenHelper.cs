@@ -14,7 +14,7 @@ namespace TelegramBot
     public class KitchenHelper
     {
         //Api бота
-        private const string token = "708214216:AAH2JC9sa5gUvI4pqp5kbmGWV40N0DwdDNQ";
+        private const string token = "api";
         public TelegramBotClient Bot;
 
         public KitchenHelper()
