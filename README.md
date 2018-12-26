@@ -15,17 +15,17 @@
 3. Изменить данные подключения к бд и токен бота на свои в классе KitchenHelper
 4. Запустить программу
 
-Пример работы приложения:  
-![](https://github.com/NikitaKhokhlov11-708/TelegramBot/tree/master/%D0%A1%D0%BA%D1%80%D0%B8%D0%BD%D1%88%D0%BE%D1%82%D1%8B/01.png)  
-![](https://github.com/NikitaKhokhlov11-708/TelegramBot/tree/master/%D0%A1%D0%BA%D1%80%D0%B8%D0%BD%D1%88%D0%BE%D1%82%D1%8B/02.png)  
-![](https://github.com/NikitaKhokhlov11-708/TelegramBot/tree/master/%D0%A1%D0%BA%D1%80%D0%B8%D0%BD%D1%88%D0%BE%D1%82%D1%8B/03.png)  
-![](https://github.com/NikitaKhokhlov11-708/TelegramBot/tree/master/%D0%A1%D0%BA%D1%80%D0%B8%D0%BD%D1%88%D0%BE%D1%82%D1%8B/04.png)  
-![](https://github.com/NikitaKhokhlov11-708/TelegramBot/tree/master/%D0%A1%D0%BA%D1%80%D0%B8%D0%BD%D1%88%D0%BE%D1%82%D1%8B/05.png)  
-![](https://github.com/NikitaKhokhlov11-708/TelegramBot/tree/master/%D0%A1%D0%BA%D1%80%D0%B8%D0%BD%D1%88%D0%BE%D1%82%D1%8B/06.png)  
-![](https://github.com/NikitaKhokhlov11-708/TelegramBot/tree/master/%D0%A1%D0%BA%D1%80%D0%B8%D0%BD%D1%88%D0%BE%D1%82%D1%8B/07.png)  
-![](https://github.com/NikitaKhokhlov11-708/TelegramBot/tree/master/%D0%A1%D0%BA%D1%80%D0%B8%D0%BD%D1%88%D0%BE%D1%82%D1%8B/08.png)  
-![](https://github.com/NikitaKhokhlov11-708/TelegramBot/tree/master/%D0%A1%D0%BA%D1%80%D0%B8%D0%BD%D1%88%D0%BE%D1%82%D1%8B/09.png)  
-![](https://github.com/NikitaKhokhlov11-708/TelegramBot/tree/master/%D0%A1%D0%BA%D1%80%D0%B8%D0%BD%D1%88%D0%BE%D1%82%D1%8B/10.png)  
-![](https://github.com/NikitaKhokhlov11-708/TelegramBot/tree/master/%D0%A1%D0%BA%D1%80%D0%B8%D0%BD%D1%88%D0%BE%D1%82%D1%8B/11.png)  
-![](https://github.com/NikitaKhokhlov11-708/TelegramBot/tree/master/%D0%A1%D0%BA%D1%80%D0%B8%D0%BD%D1%88%D0%BE%D1%82%D1%8B/12.png)  
-![](https://github.com/NikitaKhokhlov11-708/TelegramBot/tree/master/%D0%A1%D0%BA%D1%80%D0%B8%D0%BD%D1%88%D0%BE%D1%82%D1%8B/13.png)  
+### Пример работы приложения ### 
+![](%D0%A1%D0%BA%D1%80%D0%B8%D0%BD%D1%88%D0%BE%D1%82%D1%8B/01.png)  
+![](%D0%A1%D0%BA%D1%80%D0%B8%D0%BD%D1%88%D0%BE%D1%82%D1%8B/02.png)  
+![](%D0%A1%D0%BA%D1%80%D0%B8%D0%BD%D1%88%D0%BE%D1%82%D1%8B/03.png)  
+![](%D0%A1%D0%BA%D1%80%D0%B8%D0%BD%D1%88%D0%BE%D1%82%D1%8B/04.png)  
+![](%D0%A1%D0%BA%D1%80%D0%B8%D0%BD%D1%88%D0%BE%D1%82%D1%8B/05.png)  
+![](%D0%A1%D0%BA%D1%80%D0%B8%D0%BD%D1%88%D0%BE%D1%82%D1%8B/06.png)  
+![](%D0%A1%D0%BA%D1%80%D0%B8%D0%BD%D1%88%D0%BE%D1%82%D1%8B/07.png)  
+![](%D0%A1%D0%BA%D1%80%D0%B8%D0%BD%D1%88%D0%BE%D1%82%D1%8B/08.png)  
+![](%D0%A1%D0%BA%D1%80%D0%B8%D0%BD%D1%88%D0%BE%D1%82%D1%8B/09.png)  
+![](%D0%A1%D0%BA%D1%80%D0%B8%D0%BD%D1%88%D0%BE%D1%82%D1%8B/10.png)  
+![](%D0%A1%D0%BA%D1%80%D0%B8%D0%BD%D1%88%D0%BE%D1%82%D1%8B/11.png)  
+![](%D0%A1%D0%BA%D1%80%D0%B8%D0%BD%D1%88%D0%BE%D1%82%D1%8B/12.png)  
+![](%D0%A1%D0%BA%D1%80%D0%B8%D0%BD%D1%88%D0%BE%D1%82%D1%8B/13.png)  
